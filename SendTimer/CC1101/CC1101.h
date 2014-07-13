@@ -16,6 +16,8 @@ extern "C"
 {
 #endif
 
+#include <assert.h>
+    
 //#include "CC1101_Cfg_backup.h"
 #include "CC1101_Cfg.h"
 
@@ -153,9 +155,9 @@ extern "C"
  * 
  **************************************************************************************************/
 
-#define CC1101_PATABLE        0x3E  //!< PA power setting.
-#define CC1101_TXFIFO         0x3F  //!< TX FIFO
-#define CC1101_RXFIFO         0x3F  //!< RX FIFO
+#define CC1101_PATABLE        (uint8_t)0x3E  //!< PA power setting.
+#define CC1101_TXFIFO         (uint8_t)0x3F  //!< TX FIFO
+#define CC1101_RXFIFO         (uint8_t)0x3F  //!< RX FIFO
 
 /**************************************************************************************************
  * 

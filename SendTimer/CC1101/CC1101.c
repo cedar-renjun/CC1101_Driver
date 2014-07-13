@@ -26,7 +26,6 @@ typedef struct
     uint8_t value;
 }RegType;
 
-
 //! CC1101 Address Configure
 #if CC1101_ADDR_EN == 0
 #undef  CC1101_DRV_ADDR
@@ -186,9 +185,7 @@ uint8_t CC1101_RegRead(uint8_t addr)
     uint8_t value = 0;
 
     // 0 <= addr <= 0x2E
-#ifdef DEBUG
-    assert(addr <= 0x2E);
-#endif    
+    assert(addr <= (uint8_t)0x2E || addr == CC1101_RXFIFO);
 
     // Select SPI Slave
     PIN_CS_LOW();
@@ -207,11 +204,8 @@ uint8_t CC1101_RegRead(uint8_t addr)
 
 uint8_t CC1101_RegWrite(uint8_t addr, uint8_t value)
 {
-
     // 0 <= addr <= 0x2E
-#ifdef DEBUG
-    assert(addr <= 0x2E);
-#endif
+    assert(addr <= (uint8_t)0x2E || addr == CC1101_TXFIFO);
 
     // Select SPI Slave
     PIN_CS_LOW();
@@ -232,9 +226,7 @@ uint8_t CC1101_RegReadBurst(uint8_t addr, uint8_t *pData, uint8_t len)
 {
     uint8_t i = 0;
 
-#ifdef DEBUG
-    assert(addr <= 0x2E || addr == CC1101_RXFIFO);
-#endif
+    assert(addr <= (uint8_t)0x2E || addr == CC1101_RXFIFO || addr == CC1101_PATABLE);
 
     // Select SPI Slave
     PIN_CS_LOW();
@@ -259,9 +251,7 @@ uint8_t CC1101_RegWriteBurst(uint8_t addr, uint8_t *pData, uint8_t len)
 {
     uint8_t i = 0;
 
-#ifdef DEBUG
-    assert(addr <= 0x2E || addr == CC1101_TXFIFO);
-#endif
+    assert(addr <= (uint8_t)0x2E || addr == CC1101_TXFIFO || addr == CC1101_PATABLE);
 
     // Select SPI Slave
     PIN_CS_LOW();
@@ -286,7 +276,6 @@ uint8_t CC1101_StatusRead(uint8_t addr)
 {
     uint8_t value = 0;
 
-#ifdef DEBUG
     assert( addr == CC1101_PARTNUM        ||
             addr == CC1101_VERSION        ||
             addr == CC1101_FREQEST        ||
@@ -301,7 +290,6 @@ uint8_t CC1101_StatusRead(uint8_t addr)
             addr == CC1101_RXBYTES        ||
             addr == CC1101_RCCTRL1_STATUS ||
             addr == CC1101_RCCTRL0_STATUS );
-#endif
 
     // Select SPI Slave
     PIN_CS_LOW();
@@ -320,8 +308,6 @@ uint8_t CC1101_StatusRead(uint8_t addr)
 
 uint8_t CC1101_StrobeSend(uint8_t cmd)
 {
-
-#ifdef DEBUG
     assert( cmd == STROBE_SRES     ||
             cmd == STROBE_SFSTXON  ||
             cmd == STROBE_SXOFF    ||
@@ -335,7 +321,6 @@ uint8_t CC1101_StrobeSend(uint8_t cmd)
             cmd == STROBE_SFTX     ||
             cmd == STROBE_SWORRST  ||
             cmd == STROBE_SNOP     );
-#endif
 
     // Select SPI Slave
     PIN_CS_LOW();
@@ -353,10 +338,7 @@ uint8_t CC1101_StrobeSend(uint8_t cmd)
 
 uint8_t CC1101_PacketSend(uint8_t* pData, uint8_t len)
 {
-
-#ifdef DEBUG
     assert(pData != (void *)0 && len != 0);
-#endif
 
     CC1101_RegWriteBurst(CC1101_TXFIFO, pData, len);
 
@@ -374,10 +356,7 @@ uint8_t CC1101_PacketSend(uint8_t* pData, uint8_t len)
 // TODO
 uint8_t CC1101_PacketSend_ISR(uint8_t* pData, uint8_t len)
 {
-
-#ifdef DEBUG
     assert(pData != (void *)0 && len != 0);
-#endif
 
     CC1101_RegWriteBurst(CC1101_TXFIFO, pData, len);
 
@@ -397,13 +376,11 @@ uint8_t CC1101_PacketRecv(uint8_t* pData, uint8_t len)
     uint8_t packetLength  = 0;
     uint8_t payloadLength = 0;
 
-#ifdef DEBUG
     assert(pData != (void *)0 && len != 0);
-#endif
 
     CC1101_StrobeSend(STROBE_SRX);
 
-    // Wait for GDO0 to be set -> sync received
+    // Wait for GDO0 to be set -> sync received    
     while (!PIN_GD0_READ());
 
     // Wait for GDO0 to be cleared -> end of packet
@@ -447,9 +424,7 @@ uint8_t CC1101_PacketRecv_ISR(uint8_t* pData, uint8_t len)
     uint8_t packetLength  = 0;
     uint8_t payloadLength = 0;
 
-#ifdef DEBUG
     assert(pData != (void *)0 && len != 0);
-#endif
 
     //CC1101_StrobeSend(STROBE_SRX);
 
